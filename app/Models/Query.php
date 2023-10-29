@@ -16,6 +16,7 @@ class Query extends Model
   */
  protected $fillable = [
   'api-response',
-  'api-name'
+  'api-name',
+  'api-url'
  ];
 }
