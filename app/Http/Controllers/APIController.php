@@ -68,7 +68,13 @@ class APIController extends Controller
   }
  }
 
- public function postQueryHandler(Request $request)
+ public function apiKeyVerification (Request $request) {
+    if($request->input('apiKey') === \env('API_KEY'))
+    return $this->postQueryHandler($request);
+    else return response('Wrong API key. Access denied.', 403);
+ }
+
+ public function postQueryHandler($request)
  {
   if ($request->input('apiUrl') && $request->input('apiName') && $this->testApiUrl($request->input('apiUrl'))) {
    $this->apiUrl  = $request->input('apiUrl');

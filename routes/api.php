@@ -20,4 +20,4 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // Route::get('/', [APICorsController::class, 'manageQuery']);
-Route::post('/', [APIController::class, 'postQueryHandler']);
+Route::post('/', [APIController::class, 'apiKeyVerification']);
