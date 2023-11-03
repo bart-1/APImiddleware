@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Repositories\APIQueryRepository;
 use App\Traits\TimestampCompare;
+use Exception;
 use Illuminate\Http\Request;
 
 class APIController extends Controller
@@ -23,10 +24,15 @@ class APIController extends Controller
 
  public function testApiUrl(string $apiUrl): bool
  {
-  if (filter_var($apiUrl, FILTER_VALIDATE_URL)
-   && get_headers($apiUrl)) {
-   return true;
-  } else {
+  if (!filter_var($apiUrl, FILTER_VALIDATE_URL)) {return false;}
+  try {
+
+   if (get_headers($apiUrl)) {
+    return true;
+   } else {
+    return false;
+   }
+  } catch (Exception $err) {
    return false;
   }
  }
@@ -36,9 +42,9 @@ class APIController extends Controller
 
   $verifyTime = $this->compareTimestampToNow($localData->value('updated_at'), 10);
   if ($verifyTime) {
-      $this->apiResponseData = $localData->value('api-response');
+   $this->apiResponseData = $localData->value('api-response');
 
-    } else {
+  } else {
    $this->fetchAPI($this->apiUrl);
    $id = $localData->value('id');
    $this->repository->update($id, ["api-response" => $this->apiResponseData, "api-name" => $this->apiName]);
@@ -56,7 +62,7 @@ class APIController extends Controller
     break;
    case $localData === null:
     $this->fetchAPI($this->apiUrl);
-    $this->repository->create(["api-response" => $this->apiResponseData, "api-name" => $this->apiName, "api-url"=> $this->apiUrl]);
+    $this->repository->create(["api-response" => $this->apiResponseData, "api-name" => $this->apiName, "api-url" => $this->apiUrl]);
     break;
 
   }
@@ -64,13 +70,13 @@ class APIController extends Controller
 
  public function postQueryHandler(Request $request)
  {
-if ($request->input('apiUrl') && $request->input('apiName') && $this->testApiUrl($request->input('apiUrl'))) {
-    $this->apiUrl     = $request->input('apiUrl');
-    $this->apiName = $request->input('apiName');
-    $this->manageQuery();
-    return $this->apiResponseData;
-} else if($request->input('apiUrl') && $request->input('apiName') && !$this->testApiUrl($this->apiUrl)) {
-    return response('wrong API URL', 422);
+  if ($request->input('apiUrl') && $request->input('apiName') && $this->testApiUrl($request->input('apiUrl'))) {
+   $this->apiUrl  = $request->input('apiUrl');
+   $this->apiName = $request->input('apiName');
+   $this->manageQuery();
+   return $this->apiResponseData;
+  } else if ($request->input('apiUrl') && $request->input('apiName') && !$this->testApiUrl($this->apiUrl)) {
+   return response('wrong API URL', 422);
   } else {
    return response('not accepted query body', 422);
   }

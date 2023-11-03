@@ -4,10 +4,14 @@ namespace Tests\Feature;
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use App\Http\Controllers\APIController;
 use App\Models\Query;
 use App\Repositories\APIQueryRepository;
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertNotEquals;
+use function PHPUnit\Framework\assertTrue;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -94,6 +98,28 @@ class APIControllerTest extends TestCase
 
   $query->assertStatus(200) && assertNotEquals($updateTimestamp, $updateTimestamp2) &&
   assertEquals($id, $id2);
+
+ }
+
+ public function test_url_validation_works_with_incorect_url ():void {
+
+    $incorrectUrl = "h://op.pllpl";
+    $model = new Query();
+    $repository = new APIQueryRepository($model);
+    $controller = new APIController($repository);
+
+    assertFalse($controller->testApiUrl($incorrectUrl));
+
+ }
+
+ public function test_url_validation_works_with_correct_url ():void {
+
+    $incorrectUrl = "https://dziwnykot.pl";
+    $model = new Query();
+    $repository = new APIQueryRepository($model);
+    $controller = new APIController($repository);
+
+    assertTrue($controller->testApiUrl($incorrectUrl));
 
  }
 
