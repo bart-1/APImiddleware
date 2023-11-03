@@ -17,7 +17,7 @@ class APIControllerTest extends TestCase
  use RefreshDatabase;
 
 
- public $realUrl = "https: //dziwnykot.pl/weather-api-second/pl/warszawa";
+ public $realUrl = "https://dziwnykot.pl/weather-api-second/pl/warszawa";
  public $wrongUrl = "url.test";
  public $apiName = "testApi";
  public $apiResponse = 'test response';
@@ -27,7 +27,7 @@ class APIControllerTest extends TestCase
  public function test_controller_response_correct(): void
  {
 
-  $query = $this->post('http://localhost:8000/api/', ['url' => $this->realUrl, 'apiName' =>$this->apiName]);
+  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' =>$this->apiName]);
   $query->assertStatus(200);
 
  }
@@ -44,9 +44,9 @@ class APIControllerTest extends TestCase
 
   $model      = new Query();
   $repository = new APIQueryRepository($model);
-  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse]);
+  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse, 'api-url' => $this->realUrl]);
 
-  $query = $this->post('http://localhost:8000/api/', ['url' => $this->realUrl, 'apiName' =>$this->apiName]);
+  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' =>$this->apiName]);
 
   $query->assertStatus(200) && $query->assertContent($this->apiResponse);
 
@@ -57,15 +57,15 @@ class APIControllerTest extends TestCase
   $model      = new Query();
   $repository = new APIQueryRepository($model);
 
-  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse]);
-  $trackDBRecord   = $repository->findByValue('api-name', $this->apiName);
+  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse, 'api-url' => $this->realUrl]);
+  $trackDBRecord   = $repository->findByValue('api-url', $this->realUrl);
   $id              = $trackDBRecord->value('id');
   $updateTimestamp = $trackDBRecord->value('updated_at');
 
   sleep(5);
 
-  $query            = $this->post('http://localhost:8000/api/', ['url' => $this->realUrl, 'apiName' =>$this->apiName]);
-  $trackDBRecord2   = $repository->findByValue('api-name', $this->apiName);
+  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' =>$this->apiName]);
+  $trackDBRecord2   = $repository->findByValue('api-url', $this->realUrl);
   $id2              = $trackDBRecord2->value('id');
   $updateTimestamp2 = $trackDBRecord2->value('updated_at');
 
@@ -78,15 +78,15 @@ class APIControllerTest extends TestCase
   $model      = new Query();
   $repository = new APIQueryRepository($model);
 
-  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse]);
-  $trackDBRecord   = $repository->findByValue('api-name', $this->apiName);
+  $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse, 'api-url' => $this->realUrl]);
+  $trackDBRecord   = $repository->findByValue('api-url', $this->realUrl);
   $id              = $trackDBRecord->value('id');
   $updateTimestamp = $trackDBRecord->value('updated_at');
 
   sleep(20);
 
-  $query            = $this->post('http://localhost:8000/api/', ['url' => $this->realUrl, 'apiName' =>$this->apiName]);
-  $trackDBRecord2   = $repository->findByValue('api-name', $this->apiName);
+  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' =>$this->apiName]);
+  $trackDBRecord2   = $repository->findByValue('api-url', $this->realUrl);
   $id2              = $trackDBRecord2->value('id');
   $updateTimestamp2 = $trackDBRecord2->value('updated_at');
 

@@ -20,6 +20,9 @@ class DatabaseTest extends TestCase
  protected $repository;
  protected $model;
 
+ protected $apiUrl = "api.url";
+ protected $apiName = 'database-test';
+   protected $apiResponse = "{testKey:'test-data'}";
 
 
 public function test_database_works_with_create(): void
@@ -28,13 +31,12 @@ public function test_database_works_with_create(): void
      $this->repository = new Repository($this->model);
 //   $model      = new Query();
 //   $repository = new APIQueryRepository($model);
-$apiName = 'database-test';
-  $data = "{testKey:'test-data'}";
-  $this->repository->create(['api-response' => $data, 'api-name' => $apiName]);
+  $this->repository->create(['api-response' => $this->apiResponse, 'api-name' => $this->apiName, 'api-url'=> $this->apiUrl]);
 
-  $findApiResponse = $this->repository->findByValue("api-response", $data);
-  $findApiName = $this->repository->findByValue("api-name", $apiName);
-  assertTrue($findApiResponse !== \null && $findApiName !== \null);
+  $findApiResponse = $this->repository->findByValue("api-response", $this->apiResponse);
+  $findApiName = $this->repository->findByValue("api-name", $this->apiName);
+  $findApiUrl = $this->repository->findByValue("api-url", $this->apiUrl);
+  assertTrue($findApiResponse !== \null && $findApiName !== \null && $findApiUrl !== \null);
 
  }
 }
