@@ -16,9 +16,11 @@ class APIController extends Controller
  public $apiResponseData;
  protected $apiUrl;
  protected $apiName;
+ public $apiAcceptedDataFreshness;
 
  public function __construct(APIQueryRepository $repository)
  {
+    $this->apiAcceptedDataFreshness === null && $this->apiAcceptedDataFreshness = 10;
   $this->repository = $repository;
  }
 
@@ -40,7 +42,7 @@ class APIController extends Controller
  public function verifyLocalData($localData): void
  {
 
-  $verifyTime = $this->compareTimestampToNow($localData->value('updated_at'), 10);
+  $verifyTime = $this->compareTimestampToNow($localData->value('updated_at'), $this->apiAcceptedDataFreshness);
   if ($verifyTime) {
    $this->apiResponseData = $localData->value('api-response');
 
@@ -79,6 +81,7 @@ class APIController extends Controller
   if ($request->input('apiUrl') && $request->input('apiName') && $this->testApiUrl($request->input('apiUrl'))) {
    $this->apiUrl  = $request->input('apiUrl');
    $this->apiName = $request->input('apiName');
+   $request->input('apiAcceptedDataFreshness') !==null && $this->apiAcceptedDataFreshness = $request->input('apiAcceptedDataFreshness');
    $this->manageQuery();
    return $this->apiResponseData;
   } else if ($request->input('apiUrl') && $request->input('apiName') && !$this->testApiUrl($this->apiUrl)) {
