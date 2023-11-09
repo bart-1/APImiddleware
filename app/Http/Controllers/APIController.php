@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\APIQueryRepository;
+use App\Traits\TestApiUrl;
 use App\Traits\TimestampCompare;
-use Exception;
 use Illuminate\Http\Request;
 
 class APIController extends Controller
 {
 
  use TimestampCompare;
+ use TestApiUrl;
 
  protected $repository;
  public $apiResponseData;
@@ -62,22 +63,6 @@ class APIController extends Controller
     $this->repository->create(["api-response" => $this->apiResponseData, "api-name" => $this->apiName, "api-url" => $this->apiUrl]);
     break;
 
-  }
- }
-
-
- public function testApiUrl(string $apiUrl): bool
- {
-  if (!filter_var($apiUrl, FILTER_VALIDATE_URL)) {return false;}
-  try {
-
-   if (get_headers($apiUrl)) {
-    return true;
-   } else {
-    return false;
-   }
-  } catch (Exception $err) {
-   return false;
   }
  }
 
