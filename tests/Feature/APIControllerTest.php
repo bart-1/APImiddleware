@@ -12,6 +12,7 @@ use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertNotEquals;
 use function PHPUnit\Framework\assertTrue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class APIControllerTest extends TestCase
@@ -24,24 +25,24 @@ class APIControllerTest extends TestCase
  public $apiName     = "testApi";
  public $apiResponse = 'test response';
 
+ public function test_wrong_apiKey_response()
+ {
 
- public function test_wrong_apiKey_response () {
-
-     $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>"wrong api key"]);
-     $query->assertStatus(403);
+  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => "wrong api key"]);
+  $query->assertStatus(403);
  }
 
  public function test_controller_response_correct(): void
  {
 
-  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>env('API_KEY')]);
+  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => env('API_KEY')]);
   $query->assertStatus(200);
 
  }
  public function test_controller_return_status_422_with_wrong_post_keys(): void
  {
 
-  $query = $this->post('http://localhost:8000/api/', ['wrongKey' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>env('API_KEY')]);
+  $query = $this->post('http://localhost:8000/api/', ['wrongKey' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => env('API_KEY')]);
   $query->assertStatus(422);
 
  }
@@ -53,7 +54,7 @@ class APIControllerTest extends TestCase
   $repository = new APIQueryRepository($model);
   $repository->create(['api-name' => $this->apiName, 'api-response' => $this->apiResponse, 'api-url' => $this->realUrl]);
 
-  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>env('API_KEY')]);
+  $query = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => env('API_KEY')]);
 
   $query->assertStatus(200) && $query->assertContent($this->apiResponse);
 
@@ -71,7 +72,7 @@ class APIControllerTest extends TestCase
 
   sleep(5);
 
-  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>env('API_KEY')]);
+  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => env('API_KEY'), 'apiAcceptedDataFreshness' => 7]);
   $trackDBRecord2   = $repository->findByValue('api-url', $this->realUrl);
   $id2              = $trackDBRecord2->value('id');
   $updateTimestamp2 = $trackDBRecord2->value('updated_at');
@@ -90,14 +91,12 @@ class APIControllerTest extends TestCase
   $id              = $trackDBRecord->value('id');
   $updateTimestamp = $trackDBRecord->value('updated_at');
 
-  sleep(20);
+  sleep(5);
 
-  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' =>env('API_KEY')]);
+  $query            = $this->post('http://localhost:8000/api/', ['apiUrl' => $this->realUrl, 'apiName' => $this->apiName, 'apiKey' => env('API_KEY'), 'apiAcceptedDataFreshness' => 3]);
   $trackDBRecord2   = $repository->findByValue('api-url', $this->realUrl);
   $id2              = $trackDBRecord2->value('id');
   $updateTimestamp2 = $trackDBRecord2->value('updated_at');
-
-  echo $updateTimestamp . "   " . $updateTimestamp2;
 
   $query->assertStatus(200) && assertNotEquals($updateTimestamp, $updateTimestamp2) &&
   assertEquals($id, $id2);
